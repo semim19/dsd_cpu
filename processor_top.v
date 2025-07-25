@@ -18,6 +18,8 @@ module processor_top (
     wire [15:0] alu_out;
     wire alu_op;
     wire zero, cout;
+    wire immediate;
+    wire pcOrData;
 
     // Memory
     wire [15:0] mem_addr, mem_data_out, mem_data_in;
@@ -27,14 +29,17 @@ module processor_top (
     wire ready;
 
     // === Program Counter Output ===
-    assign mem_addr = pc_out;
-
+    assign mem_addr = pcOrData ? pc_out : alu_result;
+    assign alu_a = rdata1;
+    assign alu_b = immediate ? alu_b : rdata2;
+    assign reg_wdata = immediate ? mem_data_out : alu_result;
+    
     // === Memory Module ===
     unified_memory mem (
         .clk(clk),
         .addr(mem_addr),
         .we(mem_we),
-        .wd(mem_data_in),
+        .wd(rdata2),
         .rd(mem_data_out)
     );
 
@@ -78,7 +83,9 @@ module processor_top (
         .alu_in2(alu_b),
         .reg_wdata(reg_wdata),
         .pc_out(pc_out),
-        .ready(ready)
+        .ready(ready),
+        .immediate(immediate),
+        .pcOrData(pcOrData)
     );
 
 endmodule

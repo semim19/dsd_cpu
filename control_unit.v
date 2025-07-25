@@ -12,7 +12,9 @@ module control_unit (
     output reg [15:0] alu_in1, alu_in2, // ALU inputs
     output reg [15:0] reg_wdata,// Data to write back to register
     output reg [15:0] pc_out,   // PC output for instruction fetch
-    output reg ready            // Asserted when instruction completes
+    output reg ready,            // Asserted when instruction completes
+    output reg immediate,
+    output reg pcOrData
 );
 
     // FSM States
@@ -47,6 +49,7 @@ module control_unit (
         end else begin
             state <= next_state;
             if (state == S_DONE) begin
+                pcOrData <= 1;
                 pc <= pc + 1;
             end
         end
@@ -64,6 +67,8 @@ module control_unit (
         mem_addr = 0;
         mem_wdata = 0;
         reg_wdata = 0;
+        immediate = 0;
+        pcOrData = 0;
         rd = 0;
         rs1 = 0;
         rs2 = 0;
@@ -91,8 +96,7 @@ module control_unit (
                         rs1 = ir[10:9];
                         rs2 = ir[8:7];
                         alu_op = 0;
-                        alu_in1 = 16'd0; // assigned in datapath
-                        alu_in2 = 16'd0;
+                        immediate = 0;
                         next_state = S_WB;
                     end
 
@@ -101,17 +105,16 @@ module control_unit (
                         rs1 = ir[10:9];
                         rs2 = ir[8:7];
                         alu_op = 1;
-                        alu_in1 = 16'd0; // assigned in datapath
-                        alu_in2 = 16'd0;
+                        immediate = 0;
                         next_state = S_WB;
                     end
 
                     3'b100, 3'b101: begin // LOAD / STORE
-                        rd = ir[12:11];     // LOAD: destination, STORE: source
+                        rs2 = ir[12:11];     // LOAD: destination, STORE: source
                         rs1 = ir[10:9];     // Base register
                         alu_op = 0;         // Always ADD for address calc
-                        alu_in1 = 16'd0;
                         alu_in2 = imm_sext;
+                        immediate = 1;
                         next_state = S_MEM;
                     end
                 endcase
@@ -119,22 +122,26 @@ module control_unit (
 
             S_MEM: begin
                 if (ir[15:13] == 3'b100) begin // LOAD
-                    mem_addr = alu_result;
+                    // mem_addr = alu_result;
+                    immediate = 1;
                     next_state = S_WB;
                 end else if (ir[15:13] == 3'b101) begin // STORE
-                    mem_addr = alu_result;
+                    // mem_addr = alu_result;
                     mem_wdata = 16'd0; // rs value from register file
                     mem_we = 1;
+                    immediate = 1;
                     next_state = S_DONE;
                 end
             end
 
             S_WB: begin
                 if (ir[15:13] == 3'b100) begin // LOAD
-                    reg_wdata = mem_data;
+                    // reg_wdata = mem_data;
+                    immediate = 1;
                     reg_we = 1;
                 end else begin // ADD, SUB
-                    reg_wdata = alu_result;
+                    // reg_wdata = alu_result;
+                    immediate = 0;
                     reg_we = 1;
                 end
                 next_state = S_DONE;
