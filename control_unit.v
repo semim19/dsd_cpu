@@ -44,18 +44,7 @@ module control_unit (
             end
             if (state == S_WB) begin
                 pc <= pc + 1; 
-                alu_op <= 0; 
-                alu_start <= 0;
-                reg_we <= 0; 
-                mem_we <= 0; 
-                immediate <= 0; 
-                mem_addr <= 0; 
-                reg_wdata <= 0; 
-                ready <= 0; 
-                rs1 <= 0; 
-                rs2 <= 0; 
-                rd <= 0; 
-                sgnext_imm <= 0; 
+                
             end
         end
     end
@@ -68,6 +57,18 @@ module control_unit (
                 
                 mem_addr = pc;
                 next_state = S_DECODE;
+
+                alu_op = 1'b0; 
+                alu_start = 1'b0;
+                reg_we = 1'b0; 
+                mem_we = 1'b0; 
+                immediate = 1'b0; 
+                reg_wdata = 1'b0; 
+                ready = 1'b0; 
+                rs1 = 2'b00; 
+                rs2 = 2'b00; 
+                rd = 2'b00; 
+                sgnext_imm = 16'd0; 
             end
 
             S_DECODE: begin
