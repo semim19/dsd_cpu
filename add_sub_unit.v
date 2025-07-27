@@ -10,7 +10,7 @@ module add_sub_unit (
     assign b_invert = b ^ {16{sub}};  
     assign cin = sub;                 
 
-    carry_select_adder_ csa16 (
+    carry_select_adder csa16 (
         .a(a),
         .b(b_invert),
         .cin(cin),

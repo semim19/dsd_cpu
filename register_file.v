@@ -17,7 +17,7 @@ module register_file (
         end
     end
 
-    always @(negedge clk) begin
+    always @(posedge clk) begin
         r_data1 <= regs[r_addr1];
         r_data2 <= regs[r_addr2];
     end
