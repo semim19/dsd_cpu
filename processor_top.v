@@ -11,7 +11,7 @@ module processor_top (
     wire [15:0] rdata1, rdata2;
     wire [15:0] reg_wdata;
     wire [1:0] rs1, rs2, rd;
-    wire [1:0] reg_in1; // Register to read from
+    wire [1:0] reg_in2; // Register to read from
     wire reg_we;
     wire alu_start, alu_done;
     wire [15:0] sgnext_imm; // Sign-extended immediate value
@@ -32,14 +32,14 @@ module processor_top (
 
     // === Program Counter Output ===
     assign alu_b = immediate ? sgnext_imm : rdata2;
-    assign reg_in1 = immediate ? rd : rs1;
+    assign reg_in2 = immediate ? rd : rs2;
     
     // === Memory Module ===
     unified_memory mem (
         .clk(clk),
         .addr(mem_addr),
         .we(mem_we),
-        .wd(mem_data_in),
+        .wd(rdata2),
         .rd(mem_data_out)
     );
 
@@ -49,8 +49,8 @@ module processor_top (
         .we(reg_we),
         .w_addr(rd),
         .w_data(reg_wdata),
-        .r_addr1(reg_in1),
-        .r_addr2(rs2),
+        .r_addr1(rs1),
+        .r_addr2(reg_in2),
         .r_data1(rdata1),
         .r_data2(rdata2)
     );
@@ -61,7 +61,7 @@ module processor_top (
         .rst(reset),
         .start(alu_start),
         .done(alu_done),
-        .a(alu_a),
+        .a(rdata1),
         .b(alu_b),
         .op(alu_op),
         .result(alu_result)

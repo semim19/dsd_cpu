@@ -10,10 +10,10 @@ module unified_memory (
 
 
     always @(posedge clk) begin
-        rd <= mem[addr];           
         if (we) begin
             mem[addr] <= wd;       
         end
+        rd <= mem[addr];           
     end
 
 endmodule

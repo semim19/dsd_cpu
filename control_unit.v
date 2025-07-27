@@ -71,11 +71,7 @@ module control_unit (
             end
 
             S_DECODE: begin
-                // case (instr[15:13]) // opcode
-                //     3'b000, 3'b001: next_state = S_EXEC;  // ADD/SUB
-                //     3'b100, 3'b101: next_state = S_EXEC;  // LOAD/STORE address calc
-                //     default: next_state = S_DONE;
-                // endcase
+
                 case (mem_data[15:13])
                     3'b000: begin // ADD
                         rd = mem_data[12:11];
@@ -133,17 +129,17 @@ module control_unit (
                     3'b100: begin // LOAD
                         mem_addr = alu_result; // Use ALU result as address
                         mem_we = 0; // Memory read
-                        next_state = S_WB;
                     end
 
                     3'b101: begin // STORE
                         mem_addr = alu_result; // Use ALU result as address
                         mem_we = 1; // Memory write
-                        next_state = S_WB;
+                        
                     end
 
                     default: next_state = S_WB; // Default case
                 endcase
+                next_state = S_WB;
             end
 
             S_WB: begin
