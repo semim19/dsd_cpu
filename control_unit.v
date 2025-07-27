@@ -40,22 +40,22 @@ module control_unit (
         end else begin
             state <= next_state;
             if (state == S_DECODE) begin
-                ir <= mem_data;  // Latch instruction on decode
+                ir <= mem_data;
             end
             if (state == S_WB) begin
-                pc <= pc + 1; // Increment PC after write-back
-                alu_op <= 0; // Reset ALU operation
-                alu_start <= 0; // Reset ALU start signal
-                reg_we <= 0; // Reset register write enable
-                mem_we <= 0; // Reset memory write enable
-                immediate <= 0; // Reset immediate flag
-                mem_addr <= 0; // Reset memory address
-                reg_wdata <= 0; // Reset register write data
-                ready <= 0; // Reset ready signal
-                rs1 <= 0; // Reset source register 1
-                rs2 <= 0; // Reset source register 2
-                rd <= 0; // Reset destination register
-                sgnext_imm <= 0; // Reset sign-extended immediate
+                pc <= pc + 1; 
+                alu_op <= 0; 
+                alu_start <= 0;
+                reg_we <= 0; 
+                mem_we <= 0; 
+                immediate <= 0; 
+                mem_addr <= 0; 
+                reg_wdata <= 0; 
+                ready <= 0; 
+                rs1 <= 0; 
+                rs2 <= 0; 
+                rd <= 0; 
+                sgnext_imm <= 0; 
             end
         end
     end
@@ -65,7 +65,7 @@ module control_unit (
 
         case (state)
             S_FETCH: begin
-                // Memory read assumed external
+                
                 mem_addr = pc;
                 next_state = S_DECODE;
             end
@@ -95,7 +95,7 @@ module control_unit (
                         rd = mem_data[12:11];
                         rs1 = mem_data[10:9];
                         rs2 = mem_data[8:7];
-                        alu_op = 0;         // Always ADD for address calc
+                        alu_op = 0;
                         sgnext_imm = {{7{mem_data[8]}}, mem_data[8:0]}; // Sign-extend immediate
                         immediate = 1;
                         
@@ -106,9 +106,9 @@ module control_unit (
             end
 
             S_EXEC: begin
-                alu_start = 1; // Start ALU operation
+                alu_start = 1;
                 if (alu_done) begin
-                    // Check the opcode to determine next state
+                    
                     case (ir[15:13])
                         3'b000, 3'b001: begin // ADD / SUB
                             next_state = S_WB;
@@ -120,24 +120,24 @@ module control_unit (
 
                     endcase
                 end else begin
-                    next_state = S_EXEC; // Stay in EXEC state until ALU is done
+                    next_state = S_EXEC;
                 end
             end
 
             S_MEM: begin
                 case (ir[15:13])
                     3'b100: begin // LOAD
-                        mem_addr = alu_result; // Use ALU result as address
-                        mem_we = 0; // Memory read
+                        mem_addr = alu_result;
+                        mem_we = 0;
                     end
 
                     3'b101: begin // STORE
-                        mem_addr = alu_result; // Use ALU result as address
-                        mem_we = 1; // Memory write
+                        mem_addr = alu_result;
+                        mem_we = 1;
                         
                     end
 
-                    default: next_state = S_WB; // Default case
+                    default: next_state = S_WB;
                 endcase
                 next_state = S_WB;
             end
@@ -145,25 +145,24 @@ module control_unit (
             S_WB: begin
                 case (ir[15:13])
                     3'b000, 3'b001: begin // ADD / SUB
-                        reg_wdata = alu_result; // Write ALU result to register
-                        reg_we = 1; // Enable register write
+                        reg_wdata = alu_result;
+                        reg_we = 1;
                     end
 
                     3'b100: begin // LOAD
-                        reg_wdata = mem_data; // Write memory data to register
-                        reg_we = 1; // Enable register write
+                        reg_wdata = mem_data;
+                        reg_we = 1; 
                     end
 
                     3'b101: begin // STORE
-                        reg_we = 0; // No register write for STORE
+                        reg_we = 0; 
                     end
 
                     default:
-                        reg_we = 0; // No register write for unknown opcodes
+                        reg_we = 0; 
                 endcase
                 next_state = S_FETCH;
             end
         endcase
     end
 endmodule
-// Note: The ALU operations (alu_in1, alu_in2) are expected to be assigned in the datapath module.

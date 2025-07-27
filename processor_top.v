@@ -3,11 +3,9 @@ module processor_top (
     input reset
 );
 
-    // Instruction from memory
-    wire [15:0] instr;
+
     wire [15:0] pc_out;
 
-    // Register file wires
     wire [15:0] rdata1, rdata2;
     wire [15:0] reg_wdata;
     wire [1:0] rs1, rs2, rd;
@@ -23,14 +21,13 @@ module processor_top (
     wire immediate;
     wire pcOrData;
 
-    // Memory
+
     wire [15:0] mem_addr, mem_data_out, mem_data_in;
     wire mem_we;
 
-    // Control signals
+
     wire ready;
 
-    // === Program Counter Output ===
     assign alu_b = immediate ? sgnext_imm : rdata2;
     assign reg_in2 = immediate ? rd : rs2;
     

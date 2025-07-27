@@ -11,12 +11,9 @@ module processor_tb;
         .reset(reset)
     );
 
-    integer i = 0;
 
     always #5 begin
         clk = ~clk; // 100MHz clock
-        $display("%d pain: %b",i, DUT.reg_in2);
-        i = i + 1;
     end
 
     // Initial block
@@ -58,7 +55,6 @@ module processor_tb;
         $display("x3 = %h", DUT.regfile.regs[3]);
 
         $display("==== Memory ====");
-        $display("mem[x0+3] = %h", DUT.mem.mem[DUT.regfile.regs[0] + 3]);
         $display("mem[x1+2] = %h", DUT.mem.mem[DUT.regfile.regs[1] + 2]);
 
         $stop;
